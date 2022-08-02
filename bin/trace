@@ -59,11 +59,11 @@ def log_syscall(line: bytes):
     syscall_end = line_str.rsplit('"', 1)[-1].strip()
     syscall_arg = line.split(b'"', 1)[-1].rsplit(b'"', 1)[0].strip()
     arg_summary = syscall_arg[:TERM_WIDTH-40].decode('utf-8').strip()
-    
+
     decor_len = len(f'[{datetime.now()}] {syscall_start} ""{syscall_end}')
 
     if len(arg_summary) + decor_len > TERM_WIDTH:
-        arg_summary = arg_summary[:TERM_WIDTH - decor_len - 3] + '...'
+        arg_summary = f'{arg_summary[:TERM_WIDTH - decor_len - 3]}...'
 
     if '(' not in line_str.split(', ', 1)[0]:
         print(f'[{PURPLE}{datetime.now()}{RESET}] {YELLOW}{line_str}{RESET}')
@@ -77,7 +77,7 @@ def log_syscall(line: bytes):
         print(f'[{PURPLE}{datetime.now()}{RESET}] {YELLOW}{syscall_start} "{arg_summary}"{syscall_end}{RESET}')
         print()
         print(syscall_arg[:256].decode('utf-8'))
-    
+
     print()
 
     
@@ -154,10 +154,7 @@ def strace(pid: str, syscalls: str=SYSCALLS, filter: str=SYSCALL_FILTER, stracea
     ]
 
     print(SEPARATOR)
-    if filter:
-        filter_status = f'filtering for "{filter}"'
-    else:
-        filter_status = f'unfiltered'
+    filter_status = f'filtering for "{filter}"' if filter else 'unfiltered'
     print(f'{GREEN}[+] Starting {" ".join(CMD)} ({filter_status})...{RESET}')
     log_proctree(pid)
     print()
@@ -201,7 +198,6 @@ def main(pid: str=None, cmd: str=None, syscalls: str=SYSCALLS, filter: str=SYSCA
         print(SEPARATOR)
         print(f'{GREEN}[√] Stopped strace of pid={CYAN}{pid}{GREEN} ({e.__class__.__name__}).{RESET}')
         print()
-        pass
     except Exception as e:
         print(SEPARATOR)
         print(f'{RED}[X] Stopped strace of pid={CYAN}{pid}{RED} {e.__class__.__name__}: {e}{RESET}.')
@@ -213,12 +209,41 @@ def main(pid: str=None, cmd: str=None, syscalls: str=SYSCALLS, filter: str=SYSCA
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Trace a running process and log any HTTP requests performed')
 
-    parser.add_argument('--pid', '-p', action="store", type=int, default=None, help=f'PID(s) of process to trace (e.g. -p=66703,1234)')
-    parser.add_argument('--cmd', '-c', action="store", type=str, default=None, help=f'Name of process to trace (e.g. -c=nginx)')
+    parser.add_argument(
+        '--pid',
+        '-p',
+        action="store",
+        type=int,
+        default=None,
+        help='PID(s) of process to trace (e.g. -p=66703,1234)',
+    )
+
+    parser.add_argument(
+        '--cmd',
+        '-c',
+        action="store",
+        type=str,
+        default=None,
+        help='Name of process to trace (e.g. -c=nginx)',
+    )
+
     parser.add_argument('--syscalls', '-s', action="store", default=SYSCALLS, help=f'syscalls to listen for (e.g. -s={SYSCALLS})')
     parser.add_argument('--filter', '-f', action="store", default=SYSCALL_FILTER, help=f'only show calls containing subsstring (e.g. -f="{SYSCALL_FILTER}")')
-    parser.add_argument('--straceargs', '-a', action="store", default="", help=f'pass additional args to strace (e.g. -a="-r -c")')
-    parser.add_argument('--color', action="store_true", default=IS_TTY, help=f'force CLI colors in request log output')
+    parser.add_argument(
+        '--straceargs',
+        '-a',
+        action="store",
+        default="",
+        help='pass additional args to strace (e.g. -a="-r -c")',
+    )
+
+    parser.add_argument(
+        '--color',
+        action="store_true",
+        default=IS_TTY,
+        help='force CLI colors in request log output',
+    )
+
 
     args = parser.parse_args()
 

@@ -3,25 +3,6 @@
 
 raise NotImplementedError('This file is not usable yet (WIP)')
 
-# Utils to unlock 
-# pip3 install flask flask_wtf
-
-import os
-# import sys
-# import ctypes
-# import codecs
-import signal
-import subprocess
-
-from datetime import datetime
-from typing import Callable, Optional
-from contextlib import contextmanager
-
-
-
-class CONFIG:
-    FORGET_PASSPHRASE_AFTER = 60 * 60 * 24   # autodelete zpool passphrases in memory after 1 day max
-
 
 def start_timer(seconds: int, name: str=None, callback: Optional[Callable]=None):
     start_ts = datetime.now()
@@ -134,7 +115,7 @@ class ZFSDATASET:
         raise NotImplementedError
 
     @classmethod
-    def load(name: str):
+    def load(cls):
         # zpool list -v name
         raise NotImplementedError
 
@@ -145,7 +126,7 @@ class ZFSDATASET:
 class ZFSPOOL:
 
     @classmethod
-    def new(name: str):
+    def new(cls):
         # zpool create -f \
         #     -o mountpoint=/mnt/test \
         #     -o compression=lz4 \
@@ -159,7 +140,7 @@ class ZFSPOOL:
         raise NotImplementedError
 
     @classmethod
-    def load(name: str):
+    def load(cls):
         # zpool list -v name
         raise NotImplementedError
 
